@@ -66,12 +66,20 @@ func main() {
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		log.Println(err.Error())
+		fmt.Printf("[error] %v\n", err.Error())
 		os.Exit(1)
 	}
 
 	if resp.StatusCode != 200 {
 		log.Println(resp.StatusCode)
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Printf("[error] %v\n", err.Error())
+			log.Printf("[error] could not read response, status was: %v\n", resp.StatusCode)
+			os.Exit(1)
+		}
+		log.Printf("[error] HTTP GET code %v\n", string(body))
+		log.Printf("[error] HTTP GET body '%v'\n", resp.StatusCode)
 		os.Exit(1)
 	}
 
@@ -89,6 +97,8 @@ func main() {
 		log.Println(err.Error())
 		os.Exit(1)
 	}
+
+	log.Printf("[info] PUT %s\n", svcURL)
 
 	req, _ = http.NewRequest("PUT", svcURL, bytes.NewBuffer(payload))
 	req.Header.Add(`Authorization`, fmt.Sprintf("Bearer %s", kubeAPIToken))
